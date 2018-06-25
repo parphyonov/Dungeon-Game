@@ -74,36 +74,43 @@ door, player, monster = get_locations()
 #     player = game_setup[1]
 #     monster = game_setup[2]
 
-while True:
-    clear_screen()
-    valid_moves = get_moves(player)
-    print('Welcome to the Dungeon!')
-    print('You\'re currently in room {}'.format(player))
-    print('You can move {}.'.format(', '.join(valid_moves).lower()))
-    # print('Door {}, Monster {}'.format(door, monster))
-    print('Enter \'QUIT\' to quit.')
+def game_loop(door, player, monster):
+    while True:
+        print('You\'re currently in room {}'.format(player))
+        print('You can move {}.'.format(', '.join(valid_moves).lower()))
+        # print('Door {}, Monster {}'.format(door, monster))
+        print('Enter \'QUIT\' to quit.')
 
-    # take input for movement
-    move = input('> ').upper()
+        # take input for movement
+        move = input('> ').upper()
 
-    if move == 'QUIT':
-        break
-    # move the player, unless invalid move (past edges of grid)
-    elif move in valid_moves:
-        player = move_player(player, move)
-        # check for win or loss
-        if player == door:
-            print('Win!')
-            time.sleep(3)
-            clear_screen()
+        if move == 'QUIT':
             break
-        elif player == monster:
-            print('Loss!')
-            time.sleep(3)
+        # move the player, unless invalid move (past edges of grid)
+        elif move in valid_moves:
+            player = move_player(player, move)
             clear_screen()
-            break
+            # check for win or loss
+            if player == door:
+                print('Win!')
+                time.sleep(3)
+                clear_screen()
+                break
+            elif player == monster:
+                print('Loss!')
+                time.sleep(3)
+                clear_screen()
+                break
+            else:
+                continue
         else:
-            continue
-    else:
-        print('Invalid move!')
-        input('Press any key!')
+            print('Invalid move!')
+            input('Press any key!')
+
+
+clear_screen()
+valid_moves = get_moves(player)
+print('Welcome to the Dungeon!')
+input('Press \'RETURN\' to start!')
+clear_screen()
+game_loop(door, player, monster)
