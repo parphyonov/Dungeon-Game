@@ -2,18 +2,15 @@ import os
 import random
 import time
 
-# draw the grid
-
-# draw the player in the grid
-
-# clear the screen and redraw the grid
-
 GRID = [
     (0, 0), (1, 0), (2, 0), (3, 0), (4, 0),
     (0, 1), (1, 1), (2, 1), (3, 1), (4, 1),
     (0, 2), (1, 2), (2, 2), (3, 2), (4, 2),
     (0, 3), (1, 3), (2, 3), (3, 3), (4, 3),
     (0, 4), (1, 4), (2, 4), (3, 4), (4, 4),
+]
+RANDOM_TERRAIN = [
+    '🌲', '🌋', '🗿', '🌊', '🏨', '🌉'
 ]
 
 def clear_screen():
@@ -24,9 +21,9 @@ def clear_screen():
 
 # def draw_grid():
 
-def get_random_location():
-    x, y = random.sample(range(5), k = 2)
-    return [x, y]
+# def get_random_location():
+#     x, y = random.sample(range(5), k = 2)
+#     return [x, y]
 
 # pick random location for the player, the exit door and the monster
 def get_locations():
@@ -35,7 +32,8 @@ def get_locations():
     return random.sample(GRID, 3)
 
 def move_player(player, move):
-    x, y = player
+    x, y = player['location']
+    ox, oy = player['location']
     if move == 'LEFT':
         x -= 1
     elif move == 'RIGHT':
@@ -46,11 +44,13 @@ def move_player(player, move):
         y += 1
     # player = x, y
     # return player
-    return x, y
+    player['location'] = (x, y)
+    player['visited_cells'].append([(ox, oy), random.choice(RANDOM_TERRAIN)])
+    return player
 
 def get_moves(player):
     moves = ['LEFT', 'RIGHT', 'UP', 'DOWN']
-    x, y = player
+    x, y = player['location']
     if x <= 0:
         moves.remove('LEFT')
     if x >= 4:
@@ -72,28 +72,35 @@ def get_moves(player):
 #     player = game_setup[1]
 #     monster = game_setup[2]
 
+# draw the grid
 def draw_map(player, monster, door):
-    print(' _' * 5)
+    # print(' _' * 5)
     tile = '|{}'
     for cell in GRID:
         x, y = cell
         if x < 4:
             line_end = ''
-            if cell == monster:
+            if cell in player['visited_cells']:
+                output = tile.format[player['visited_cells'][1]]
+            elif cell == monster:
                 output = tile.format('🐍')
             elif cell == door:
                 output = tile.format('🚪')
-            elif cell == player:
+            # draw the player in the grid
+            elif cell == player['location']:
                 output = tile.format('🎴')
             else:
                 output = tile.format('🀄️')
         else:
             line_end = '\n'
-            if cell == monster:
+            if cell in player['visited_cells']:
+                output = tile.format[player['visited_cells'][1] + '|']
+            elif cell == monster:
                 output = tile.format('🐍|')
             elif cell == door:
                 output = tile.format('🚪|')
-            elif cell == player:
+            # draw the player in the grid
+            elif cell == player['location']:
                 output = tile.format('🎴|')
             else:
                 output = tile.format('🀄️|')
@@ -103,13 +110,21 @@ def keep_playing():
     return not bool(input('Press \'ENTER\' to keep playing. Enter any text to quit! >  '))
 
 def game_loop():
-    door, player, monster = get_locations()
+    locations = get_locations()
+    door = locations[0]
+    player = {
+        'location': locations[1],
+        'visited_cells': []
+    }
+    print(player)
+    monster = locations[2]
     playing = True
     while playing:
+        # clear the screen and redraw the grid
         clear_screen()
         valid_moves = get_moves(player)
         draw_map(player, monster, door)
-        print('You\'re currently in room {}'.format(player))
+        print('You\'re currently in room {}'.format(player['location']))
         print('You can move {}.'.format(', '.join(valid_moves).lower()))
         # print('Door {}, Monster {}'.format(door, monster))
         print('Enter \'QUIT\' to quit.')
@@ -124,12 +139,13 @@ def game_loop():
             player = move_player(player, move)
             clear_screen()
             # check for win or loss
-            if player == door:
+            if player['location'] == door:
                 print('Win!')
+                print(player)
                 time.sleep(3)
                 clear_screen()
                 playing = keep_playing()
-            elif player == monster:
+            elif player['location'] == monster:
                 print('Loss!')
                 time.sleep(3)
                 clear_screen()
