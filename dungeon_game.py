@@ -72,31 +72,43 @@ def get_moves(player):
 #     player = game_setup[1]
 #     monster = game_setup[2]
 
-def draw_map(player):
+def draw_map(player, monster, door):
     print(' _' * 5)
     tile = '|{}'
     for cell in GRID:
         x, y = cell
         if x < 4:
             line_end = ''
-            if cell == player:
-                output = tile.format('X')
+            if cell == monster:
+                output = tile.format('🐍')
+            elif cell == door:
+                output = tile.format('🚪')
+            elif cell == player:
+                output = tile.format('🎴')
             else:
-                output = tile.format('_')
+                output = tile.format('🀄️')
         else:
             line_end = '\n'
-            if cell == player:
-                output = tile.format('X|')
+            if cell == monster:
+                output = tile.format('🐍|')
+            elif cell == door:
+                output = tile.format('🚪|')
+            elif cell == player:
+                output = tile.format('🎴|')
             else:
-                output = tile.format('_|')
+                output = tile.format('🀄️|')
         print(output, end = line_end)
 
+def keep_playing():
+    return not bool(input('Press \'ENTER\' to keep playing. Enter any text to quit! >  '))
 
 def game_loop():
     door, player, monster = get_locations()
-    while True:
+    playing = True
+    while playing:
+        clear_screen()
         valid_moves = get_moves(player)
-        draw_map(player)
+        draw_map(player, monster, door)
         print('You\'re currently in room {}'.format(player))
         print('You can move {}.'.format(', '.join(valid_moves).lower()))
         # print('Door {}, Monster {}'.format(door, monster))
@@ -116,18 +128,16 @@ def game_loop():
                 print('Win!')
                 time.sleep(3)
                 clear_screen()
-                break
+                playing = keep_playing()
             elif player == monster:
                 print('Loss!')
                 time.sleep(3)
                 clear_screen()
-                break
+                playing = keep_playing()
             else:
                 continue
         else:
             input('Invalid move!')
-        clear_screen()
-
 
 clear_screen()
 print('Welcome to the Dungeon!')
