@@ -61,8 +61,6 @@ def get_moves(player):
         moves.remove('DOWN')
     return moves
 
-door, player, monster = get_locations()
-
 # game_setup = get_locations()
 # door = list(game_setup[0])
 # player = list(game_setup[1])
@@ -74,8 +72,31 @@ door, player, monster = get_locations()
 #     player = game_setup[1]
 #     monster = game_setup[2]
 
-def game_loop(door, player, monster):
+def draw_map(player):
+    print(' _' * 5)
+    tile = '|{}'
+    for cell in GRID:
+        x, y = cell
+        if x < 4:
+            line_end = ''
+            if cell == player:
+                output = tile.format('X')
+            else:
+                output = tile.format('_')
+        else:
+            line_end = '\n'
+            if cell == player:
+                output = tile.format('X|')
+            else:
+                output = tile.format('_|')
+        print(output, end = line_end)
+
+
+def game_loop():
+    door, player, monster = get_locations()
     while True:
+        valid_moves = get_moves(player)
+        draw_map(player)
         print('You\'re currently in room {}'.format(player))
         print('You can move {}.'.format(', '.join(valid_moves).lower()))
         # print('Door {}, Monster {}'.format(door, monster))
@@ -104,13 +125,12 @@ def game_loop(door, player, monster):
             else:
                 continue
         else:
-            print('Invalid move!')
-            input('Press any key!')
+            input('Invalid move!')
+        clear_screen()
 
 
 clear_screen()
-valid_moves = get_moves(player)
 print('Welcome to the Dungeon!')
 input('Press \'RETURN\' to start!')
 clear_screen()
-game_loop(door, player, monster)
+game_loop()
