@@ -1,5 +1,6 @@
 import os
 import random
+import time
 
 # draw the grid
 
@@ -21,8 +22,7 @@ def clear_screen():
     else:
         os.system('clear')
 
-def draw_grid():
-
+# def draw_grid():
 
 def get_random_location():
     x, y = random.sample(range(5), k = 2)
@@ -30,50 +30,56 @@ def get_random_location():
 
 # pick random location for the player, the exit door and the monster
 def get_locations():
-    door, player, monster = get_random_location(), get_random_location(), get_random_location()
-    return door, player, monster
+    # door, player, monster = get_random_location(), get_random_location(), get_random_location()
+    # return door, player, monster
+    return random.sample(GRID, 3)
 
 def move_player(player, move):
-    if move == 'UP':
-        player[1] -= 1
-    elif move == 'DOWN':
-        player[1] += 1
-    elif move == 'LEFT':
-        player[0] -= 1
+    x, y = player
+    if move == 'LEFT':
+        x -= 1
     elif move == 'RIGHT':
-        player[0] += 1
-    return player
+        x += 1
+    elif move == 'UP':
+        y -= 1
+    elif move == 'DOWN':
+        y += 1
+    # player = x, y
+    # return player
+    return x, y
 
 def get_moves(player):
     moves = ['LEFT', 'RIGHT', 'UP', 'DOWN']
-    if player[1] <= 0:
-        del moves[moves.index('UP')]
-    if player[1] >= 4:
-        del moves[moves.index('DOWN')]
-    if player[0] <= 0:
-        del moves[moves.index('LEFT')]
-    if player[0] >= 4:
-        del moves[moves.index('RIGHT')]
+    x, y = player
+    if x <= 0:
+        moves.remove('LEFT')
+    if x >= 4:
+        moves.remove('RIGHT')
+    if y <= 0:
+        moves.remove('UP')
+    if y >= 4:
+        moves.remove('DOWN')
     return moves
 
-game_setup = get_locations()
-door = None
-player = None
-monster = None
+door, player, monster = get_locations()
 
-while door == player or monster == player or door == monster:
-    game_setup = get_locations()
-    door = game_setup[0]
-    player = game_setup[1]
-    monster = game_setup[2]
+# game_setup = get_locations()
+# door = list(game_setup[0])
+# player = list(game_setup[1])
+# monster = list(game_setup[2])
 
-moves = get_moves(player)
+# while door == player or monster == player or door == monster:
+#     game_setup = get_locations()
+#     door = game_setup[0]
+#     player = game_setup[1]
+#     monster = game_setup[2]
 
 while True:
     clear_screen()
+    valid_moves = get_moves(player)
     print('Welcome to the Dungeon!')
     print('You\'re currently in room {}'.format(player))
-    print('You can move {}.'.format(moves))
+    print('You can move {}.'.format(', '.join(valid_moves).lower()))
     # print('Door {}, Monster {}'.format(door, monster))
     print('Enter \'QUIT\' to quit.')
 
@@ -83,15 +89,18 @@ while True:
     if move == 'QUIT':
         break
     # move the player, unless invalid move (past edges of grid)
-    elif move in moves:
+    elif move in valid_moves:
         player = move_player(player, move)
-        moves = get_moves(player)
         # check for win or loss
         if player == door:
             print('Win!')
+            time.sleep(3)
+            clear_screen()
             break
         elif player == monster:
             print('Loss!')
+            time.sleep(3)
+            clear_screen()
             break
         else:
             continue
